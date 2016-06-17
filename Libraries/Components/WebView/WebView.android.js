@@ -268,6 +268,14 @@ class WebView extends React.Component {
     );
   };
 
+  destroy: function() {
+    UIManager.dispatchViewManagerCommand(
+      this.getWebViewHandle(),
+      UIManager.RCTWebView.Commands.destroy,
+      null
+    );
+  },
+
   /**
    * We return an event with a bunch of fields including:
    *  url, title, loading, canGoBack, canGoForward
