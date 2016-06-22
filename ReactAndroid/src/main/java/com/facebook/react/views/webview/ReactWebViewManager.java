@@ -24,6 +24,9 @@ import android.webkit.WebChromeClient;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
+import android.content.Intent;
+import android.webkit.MimeTypeMap;
+import android.net.Uri;
 
 import com.facebook.react.views.webview.events.TopLoadingErrorEvent;
 import com.facebook.react.views.webview.events.TopLoadingFinishEvent;
@@ -149,6 +152,27 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
               createWebViewEvent(webView, url)));
     }
 
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+      if (url.startsWith("bloomfire://")) {
+        try {
+          ReactContext reactContext = (ReactContext) view.getContext();
+          Intent intent = new Intent(Intent.ACTION_VIEW);
+          String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+          String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+          intent.setDataAndType(Uri.parse(url.replace("bloomfire:", "file:")), mimeType);
+          intent.setData(Uri.parse(url));
+          reactContext.startActivity(intent);
+          return true;
+        } catch (Exception e) {
+          Log.e("shouldOverrideUrlLoading", "Cannot parse bloomfire file");
+        }
+      }
+
+      return false;
+    }
+
+
     private void emitFinishEvent(WebView webView, String url) {
       dispatchEvent(
           webView,
@@ -233,6 +257,9 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
   public ReactWebViewManager() {
     mWebViewConfig = new WebViewConfig() {
       public void configWebView(WebView webView) {
+        // disable hardware acceleration for webviews
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        // webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
       }
     };
   }
@@ -253,11 +280,6 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
     reactContext.addLifecycleEventListener(webView);
     mWebViewConfig.configWebView(webView);
 
-    // BF changes
-    Log.w("BFWebView" + webView.getId(), "Initialize web view");
-    // webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-    // webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-    // end BF changes
     if (ReactBuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
