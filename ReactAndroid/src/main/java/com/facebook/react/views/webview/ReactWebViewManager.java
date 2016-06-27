@@ -178,7 +178,6 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
           String extension = MimeTypeMap.getFileExtensionFromUrl(url);
           String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
           intent.setDataAndType(Uri.parse(url.replace("bloomfire:", "file:")), mimeType);
-          intent.setData(Uri.parse(url));
           reactContext.startActivity(intent);
           return true;
         } catch (Exception e) {
