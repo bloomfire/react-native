@@ -183,11 +183,27 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
               createWebViewEvent(webView, url)));
     }
 
+    private void sendEvent(ReactContext reactContext,
+                           String eventName,
+                           @Nullable WritableMap params) {
+      reactContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit(eventName, params);
+    }
+
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+      ReactContext reactContext = (ReactContext) view.getContext();
+
+      // Universal login accepts a URL containing /token_login? but SSO passes
+      // the token after /token_login/
+      if (url.contains("?token=") || url.contains("/token_login")) {
+        sendEvent(reactContext, "BLOOMFIRE_TOKEN_URL", createWebViewEvent(view, url));
+        return true;
+      }
+
       if (url.startsWith("bloomfire://")) {
         try {
-          ReactContext reactContext = (ReactContext) view.getContext();
           Intent intent = new Intent(Intent.ACTION_VIEW);
           String extension = MimeTypeMap.getFileExtensionFromUrl(url);
           String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
@@ -195,7 +211,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
           reactContext.startActivity(intent);
           return true;
         } catch (Exception e) {
-          Log.e("shouldOverrideUrlLoading", "Cannot parse bloomfire file");
+          Log.e("shouldOverrideUrlLoading", "Cannot parse bloomfire file: " +  e.getMessage());
         }
       }
 
