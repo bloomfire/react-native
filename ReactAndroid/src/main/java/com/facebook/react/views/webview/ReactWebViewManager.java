@@ -153,12 +153,22 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
               createWebViewEvent(webView, url)));
     }
 
+    private void sendEvent(ReactContext reactContext,
+                           String eventName,
+                           @Nullable WritableMap params) {
+      reactContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit(eventName, params);
+    }
+
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
       ReactContext reactContext = (ReactContext) view.getContext();
 
-      if (url.contains("token=") || url.contains("token_login")) {
-        sendEvent(reactContext, "TOKEN_URL", createWebViewEvent(webView, url));
+      // Universal login accepts a URL containing /token_login? but SSO passes
+      // the token after /token_login/
+      if (url.contains("?token=") || url.contains("/token_login")) {
+        sendEvent(reactContext, "BLOOMFIRE_TOKEN_URL", createWebViewEvent(view, url));
         return true;
       }
 
