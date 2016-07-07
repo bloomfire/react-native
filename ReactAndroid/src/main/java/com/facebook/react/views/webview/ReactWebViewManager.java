@@ -47,6 +47,7 @@ import com.facebook.react.uimanager.UIManagerModule;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 /**
  * Manages instances of {@link WebView}
@@ -154,9 +155,15 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+      ReactContext reactContext = (ReactContext) view.getContext();
+
+      if (url.contains("token=") || url.contains("token_login")) {
+        sendEvent(reactContext, "TOKEN_URL", createWebViewEvent(webView, url));
+        return true;
+      }
+
       if (url.startsWith("bloomfire://")) {
         try {
-          ReactContext reactContext = (ReactContext) view.getContext();
           Intent intent = new Intent(Intent.ACTION_VIEW);
           String extension = MimeTypeMap.getFileExtensionFromUrl(url);
           String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
@@ -164,7 +171,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
           reactContext.startActivity(intent);
           return true;
         } catch (Exception e) {
-          Log.e("shouldOverrideUrlLoading", "Cannot parse bloomfire file");
+          Log.e("shouldOverrideUrlLoading", "Cannot parse bloomfire file: " +  e.getMessage());
         }
       }
 
