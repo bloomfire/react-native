@@ -27,6 +27,9 @@ import android.webkit.WebSettings;
 import android.content.Intent;
 import android.webkit.MimeTypeMap;
 import android.net.Uri;
+import android.text.InputType;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 
 import com.facebook.react.views.webview.events.TopLoadingErrorEvent;
 import com.facebook.react.views.webview.events.TopLoadingFinishEvent;
@@ -237,6 +240,19 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
       super(reactContext);
     }
 
+    /**
+     * We override InputConnection to disable autocorrection on our webview
+     */
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+      InputConnection ic = super.onCreateInputConnection(outAttrs);
+
+      outAttrs.inputType &= ~EditorInfo.TYPE_MASK_VARIATION; /* clear VARIATION type to be able to set new value */
+      outAttrs.inputType |= InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD; /* WEB_PASSWORD type will prevent form suggestions */
+
+      return ic;
+    }
+
     @Override
     public void onHostResume() {
       // do nothing
@@ -275,7 +291,6 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
       public void configWebView(WebView webView) {
         // disable hardware acceleration for webviews
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        // webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
       }
     };
   }
