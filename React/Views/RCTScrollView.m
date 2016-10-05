@@ -363,7 +363,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   if (_rctRefreshControl) {
     [_rctRefreshControl removeFromSuperview];
   }
-  _refreshControl = refreshControl;
+  _rctRefreshControl = refreshControl;
   [self addSubview:_rctRefreshControl];
 }
 
