@@ -268,13 +268,13 @@ class WebView extends React.Component {
     );
   };
 
-  destroy: function() {
+  destroy = () => {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),
       UIManager.RCTWebView.Commands.destroy,
       null
     );
-  },
+  };
 
   /**
    * We return an event with a bunch of fields including:
