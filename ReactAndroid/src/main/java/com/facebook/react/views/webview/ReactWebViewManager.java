@@ -202,7 +202,10 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
 
       // Universal login accepts a URL containing /token_login? but SSO passes
       // the token after /token_login/ or token=
-      if (url.contains("/token_login?") || url.contains("/token_login/") || url.contains("token=")) {
+      if (url.contains("/token_login?") ||
+          url.contains("/token_login/") ||
+          url.contains("?token=") ||
+          url.contains("&token=")) {
           sendEvent(reactContext, "BLOOMFIRE_TOKEN_URL", createWebViewEvent(view, url));
           return true;
       }
