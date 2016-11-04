@@ -218,14 +218,9 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
           Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
           intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
           view.getContext().startActivity(intent);
-          return true;
       }
-    }
 
-
-
-
-      return false;
+      return true;
     }
 
 
