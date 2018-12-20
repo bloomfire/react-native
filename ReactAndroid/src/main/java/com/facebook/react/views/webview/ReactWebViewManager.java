@@ -202,7 +202,10 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
 
       // Universal login accepts a URL containing /token_login? but SSO passes
       // the token after /token_login/ or token=
-      if (url.contains("/token_login?") ||
+      if (url.contains("okta.com")) {
+        // SUPER HACKY!!! Allow okta urls to bypass token checking because they may contain a token url param.
+        // This corresponds to a similar change in common/components/LoginView.js in the BF app
+      } else if (url.contains("/token_login?") ||
           url.contains("/token_login/") ||
           url.contains("?token=") ||
           url.contains("&token=")) {
